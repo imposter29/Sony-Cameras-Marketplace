@@ -1,0 +1,14 @@
+{
+  "name": "sony-cameras-marketplace",
+  "version": "1.0.0",
+  "description": "Sony Cameras Marketplace — Full Stack Application",
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "server": "npm run dev --prefix server",
+    "client": "npm run dev --prefix client",
+    "seed": "node server/seed/seed.js"
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
