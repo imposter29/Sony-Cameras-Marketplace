@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import useAuthStore from './store/authStore';
 import { getMe } from './api/auth';
 
@@ -30,6 +30,10 @@ import OrderConfirmation from './pages/OrderConfirmation';
 import MyOrders from './pages/MyOrders';
 import OrderDetail from './pages/OrderDetail';
 import NotFound from './pages/NotFound';
+import About from './pages/About';
+import ContactUs from './pages/ContactUs';
+import Privacy from './pages/Privacy';
+import Terms from './pages/Terms';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -37,6 +41,14 @@ import ManageProducts from './pages/admin/ManageProducts';
 import AddEditProduct from './pages/admin/AddEditProduct';
 import ManageOrders from './pages/admin/ManageOrders';
 import ManageUsers from './pages/admin/ManageUsers';
+import ManageMessages from './pages/admin/ManageMessages';
+
+// Scroll to top on every route change
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  return null;
+};
 
 function App() {
   const token = useAuthStore((state) => state.token);
@@ -60,6 +72,7 @@ function App() {
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#FFFFFF' }}>
       <Navbar />
+      <ScrollToTop />
       <CartDrawer />
 
       <main className="flex-1">
@@ -73,6 +86,10 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<ContactUs />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
 
           {/* Protected Routes — requires authentication */}
           <Route element={<ProtectedRoute />}>
@@ -93,6 +110,7 @@ function App() {
             <Route path="/admin/products/:id/edit" element={<AddEditProduct />} />
             <Route path="/admin/orders" element={<ManageOrders />} />
             <Route path="/admin/users" element={<ManageUsers />} />
+            <Route path="/admin/messages" element={<ManageMessages />} />
           </Route>
 
           {/* 404 */}
