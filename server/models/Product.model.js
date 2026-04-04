@@ -15,6 +15,7 @@ const ProductSchema = new mongoose.Schema(
     stock: { type: Number, required: true, default: 0 },
     images: { type: [String], required: true },
     specs: { type: mongoose.Schema.Types.Mixed, default: {} },
+    features: { type: [String], default: [] },
     avgRating: { type: Number, default: 0, min: 0, max: 5 },
     reviewCount: { type: Number, default: 0 },
     isFeatured: { type: Boolean, default: false },
@@ -23,7 +24,6 @@ const ProductSchema = new mongoose.Schema(
 );
 
 // Indexes
-ProductSchema.index({ slug: 1 });
 ProductSchema.index({ category: 1 });
 ProductSchema.index({ price: 1 });
 ProductSchema.index({ isFeatured: 1 });

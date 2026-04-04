@@ -13,6 +13,7 @@ exports.getProducts = async (req, res) => {
       sensor,
       mount,
       sort,
+      rating,
       page = 1,
       limit = 12,
     } = req.query;
@@ -21,8 +22,13 @@ exports.getProducts = async (req, res) => {
 
     // Category filter by slug
     if (category) {
-      const cat = await Category.findOne({ slug: category });
-      if (cat) filter.category = cat._id;
+      const categorySlugs = category.split(',');
+      const cats = await Category.find({ slug: { $in: categorySlugs } });
+      if (cats.length > 0) {
+        filter.category = { $in: cats.map(c => c._id) };
+      } else {
+        filter.category = null; // force empty result if categories not found
+      }
     }
 
     // Price range filter
@@ -39,10 +45,15 @@ exports.getProducts = async (req, res) => {
 
     // Specs filters
     if (sensor) {
-      filter['specs.sensor'] = { $regex: sensor, $options: 'i' };
+      const sensors = sensor.split(',');
+      filter['specs.sensor'] = { $in: sensors.map(s => new RegExp(s.trim(), 'i')) };
     }
     if (mount) {
-      filter['specs.mount'] = { $regex: mount, $options: 'i' };
+      const mounts = mount.split(',');
+      filter['specs.mount'] = { $in: mounts.map(m => new RegExp(m.trim(), 'i')) };
+    }
+    if (rating) {
+      filter.avgRating = { $gte: Number(rating) };
     }
 
     // Sorting
@@ -137,6 +148,21 @@ exports.getBySlug = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// @desc    Get product by ID (admin edit)
+// @route   GET /api/products/by-id/:id
+exports.getById = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id).populate('category', 'name slug');
+    if (!product) {
+      return res.status(404).json({ success: false, message: 'Product not found' });
+    }
+    res.json({ success: true, product });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 
 // @desc    Create product
 // @route   POST /api/products (admin)
