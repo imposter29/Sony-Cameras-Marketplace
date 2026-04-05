@@ -4,6 +4,7 @@ const {
   getFeatured,
   getCompare,
   getBySlug,
+  getById,
   createProduct,
   updateProduct,
   deleteProduct,
@@ -14,6 +15,7 @@ const adminOnly = require('../middleware/adminOnly');
 router.get('/', getProducts);
 router.get('/featured', getFeatured);
 router.get('/compare', getCompare);
+router.get('/by-id/:id', getById);
 router.get('/:slug', getBySlug);
 router.post('/', verifyToken, adminOnly, createProduct);
 router.put('/:id', verifyToken, adminOnly, updateProduct);
