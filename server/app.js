@@ -20,6 +20,7 @@ app.use('/api/cart', require('./routes/cart.routes'));
 app.use('/api/orders', require('./routes/order.routes'));
 app.use('/api/reviews', require('./routes/review.routes'));
 app.use('/api/upload', require('./routes/upload.routes'));
+app.use('/api/contact', require('./routes/contact.routes'));
 
 // Admin user management routes
 const verifyToken = require('./middleware/auth');
