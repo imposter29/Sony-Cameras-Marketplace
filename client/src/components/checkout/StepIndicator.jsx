@@ -1,42 +1,33 @@
-import { cn } from '../../utils/cn';
-import { Check } from 'lucide-react';
-
 const steps = ['Address', 'Payment', 'Review'];
 
 const StepIndicator = ({ currentStep = 0 }) => {
   return (
-    <div className="flex items-center justify-center space-x-4">
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       {steps.map((step, index) => (
-        <div key={step} className="flex items-center">
-          <div className="flex items-center space-x-2">
-            <div
-              className={cn(
-                'w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors',
-                index < currentStep
-                  ? 'bg-sony-black text-white'
-                  : index === currentStep
-                  ? 'bg-sony-black text-white'
-                  : 'bg-sony-light text-sony-mid'
-              )}
-            >
-              {index < currentStep ? <Check size={16} /> : index + 1}
+        <div key={step} style={{ display: 'flex', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{
+              width: '28px', height: '28px', borderRadius: '50%',
+              backgroundColor: index <= currentStep ? '#000' : '#E5E5E5',
+              color: index <= currentStep ? '#fff' : '#7F7F7F',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: 600,
+            }}>
+              {index < currentStep ? '✓' : index + 1}
             </div>
-            <span
-              className={cn(
-                'text-sm font-medium',
-                index <= currentStep ? 'text-sony-black' : 'text-sony-mid'
-              )}
-            >
+            <span style={{
+              fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: 600,
+              color: index <= currentStep ? '#000' : '#7F7F7F',
+              textTransform: 'uppercase', letterSpacing: '0.1em',
+            }}>
               {step}
             </span>
           </div>
           {index < steps.length - 1 && (
-            <div
-              className={cn(
-                'w-12 h-px mx-3',
-                index < currentStep ? 'bg-sony-black' : 'bg-sony-light'
-              )}
-            />
+            <div style={{
+              width: '40px', height: '1px', margin: '0 12px',
+              backgroundColor: index < currentStep ? '#000' : '#E5E5E5',
+            }} />
           )}
         </div>
       ))}
