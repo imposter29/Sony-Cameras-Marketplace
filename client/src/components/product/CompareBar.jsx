@@ -11,6 +11,7 @@ const CompareBar = () => {
 
   return (
     <div style={{
+      position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 50,
       backgroundColor: '#FFFFFF', borderTop: '1px solid #000000', padding: '12px 32px',
       display: 'flex', alignItems: 'center', gap: '16px',
     }}>

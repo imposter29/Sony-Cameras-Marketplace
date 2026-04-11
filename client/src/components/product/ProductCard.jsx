@@ -8,17 +8,21 @@ import useCompareStore from '../../store/compareStore';
 import { addToCart } from '../../api/cart';
 import { toggleWishlist } from '../../api/users';
 import { formatPrice } from '../../utils/formatPrice';
+import { useToast } from '../ui/Toast';
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
+  const { addToast } = useToast();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const addItem = useCartStore((s) => s.addItem);
   const { toggleItem, items: wishlistItems } = useWishlistStore();
   const { addToCompare, items: compareItems } = useCompareStore();
   const [compareMsg, setCompareMsg] = useState('');
+  const [cartAdded, setCartAdded] = useState(false);
 
   const wishlisted = wishlistItems.some((i) => i._id === product._id);
   const inCompare = compareItems.some((i) => i._id === product._id);
+  const outOfStock = product.stock === 0;
 
   const isNew = product.createdAt && Date.now() - new Date(product.createdAt).getTime() < 30 * 24 * 60 * 60 * 1000;
   const hasDiscount = product.originalPrice && product.originalPrice > product.price;
@@ -34,13 +38,22 @@ const ProductCard = ({ product }) => {
     if (!isAuthenticated) return navigate('/login');
     toggleWishlist(product._id).catch(() => {});
     toggleItem(product);
+    addToast(wishlisted ? '✓ Removed from wishlist' : '✓ Saved to wishlist');
   };
 
   const handleAddToCart = async (e) => {
     e.stopPropagation();
     if (!isAuthenticated) return navigate('/login');
-    try { await addToCart(product._id, 1); } catch {}
-    addItem(product, 1);
+    if (outOfStock) return;
+    try {
+      await addToCart(product._id, 1);
+      addItem(product, 1);
+      setCartAdded(true);
+      addToast('✓ Added to cart');
+      setTimeout(() => setCartAdded(false), 2000);
+    } catch (err) {
+      addToast('✗ Failed to add to cart');
+    }
   };
 
   const handleCompare = (e) => {
@@ -48,6 +61,7 @@ const ProductCard = ({ product }) => {
     if (inCompare) return;
     if (compareItems.length >= 3) {
       setCompareMsg('Max 3');
+      addToast('Max 3 cameras can be compared');
       setTimeout(() => setCompareMsg(''), 1500);
       return;
     }
@@ -127,13 +141,16 @@ const ProductCard = ({ product }) => {
         </div>
 
         <div style={{ display: 'flex', gap: '1px' }}>
-          <button onClick={handleAddToCart} style={{
-            flex: 1, backgroundColor: '#000000', color: '#FFFFFF',
+          <button onClick={handleAddToCart} disabled={outOfStock} style={{
+            flex: 1,
+            backgroundColor: outOfStock ? '#E5E5E5' : '#000000',
+            color: outOfStock ? '#7F7F7F' : '#FFFFFF',
             fontFamily: "'DM Sans', sans-serif", fontSize: '10px', fontWeight: 600,
             textTransform: 'uppercase', letterSpacing: '0.08em', padding: '10px 0',
-            border: 'none', borderRadius: '0', cursor: 'pointer',
+            border: 'none', borderRadius: '0',
+            cursor: outOfStock ? 'not-allowed' : 'pointer',
           }}>
-            ADD TO CART
+            {outOfStock ? 'OUT OF STOCK' : cartAdded ? '✓ ADDED' : 'ADD TO CART'}
           </button>
           <button onClick={handleCompare} style={{
             width: '44px', backgroundColor: '#FFFFFF', color: inCompare ? '#000000' : '#404040',
