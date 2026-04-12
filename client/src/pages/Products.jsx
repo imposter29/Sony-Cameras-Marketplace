@@ -30,7 +30,7 @@ const Products = ({ initialCategory = '' }) => {
     minPrice: appliedMin || undefined,
     maxPrice: appliedMax || undefined,
     rating: rating || undefined,
-    sort, page, limit: 24,
+    sort, page, limit: 12,
   };
 
   const { data, isLoading } = useProducts(params);
