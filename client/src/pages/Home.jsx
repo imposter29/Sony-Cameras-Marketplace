@@ -51,7 +51,7 @@ const Home = () => {
       {/* ===== SECTION 1 — Landscape Hero (IMAGE 1) ===== */}
       <section ref={ref1} style={{ width: '100%', height: '95vh', overflow: 'hidden', position: 'relative' }}>
         <img
-          src="/Image1.webp"
+          src="https://res.cloudinary.com/djiqoe4bb/image/upload/v1776023221/Image1_bmt7s7.webp"
           alt="Sony Alpha landscape hero"
           style={imgAnim(inView1)}
         />
@@ -164,7 +164,7 @@ const Home = () => {
       {/* ===== SECTION 2 — Portrait (IMAGE 2) ===== */}
       <section ref={ref2} style={{ width: '100%', height: '100vh', overflow: 'hidden', position: 'relative' }}>
         <img
-          src="/Image2.jpeg"
+          src="https://res.cloudinary.com/djiqoe4bb/image/upload/v1776023225/Image2_ugpj0e.jpg"
           alt="Sony Alpha portrait"
           style={{ ...imgAnim(inView2), objectPosition: 'top center' }}
         />
@@ -283,7 +283,7 @@ const Home = () => {
       {/* ===== SECTION 4 — Wildlife (IMAGE 3) ===== */}
       <section ref={ref3} style={{ width: '100%', height: '100vh', overflow: 'hidden', position: 'relative' }}>
         <img
-          src="/Image3.jpeg"
+          src="https://res.cloudinary.com/djiqoe4bb/image/upload/v1776023221/Image3_k6yjuz.jpg"
           alt="Wildlife photography"
           style={imgAnim(inView3)}
         />
@@ -339,7 +339,7 @@ const Home = () => {
       {/* ===== SECTION 5 — Action/Sports (IMAGE 4) ===== */}
       <section ref={ref4} style={{ width: '100%', height: '100vh', overflow: 'hidden', position: 'relative' }}>
         <img
-          src="/Image4.jpeg"
+          src="https://res.cloudinary.com/djiqoe4bb/image/upload/v1776023226/Image4_jsgr6w.jpg"
           alt="Action sports photography"
           style={{ ...imgAnim(inView4), objectPosition: 'center' }}
         />

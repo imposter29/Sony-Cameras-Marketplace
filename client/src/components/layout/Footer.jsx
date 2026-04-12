@@ -34,7 +34,7 @@ const Footer = () => {
         {/* Column 1 — Brand */}
         <div>
           <img
-            src="/BlackLogo.png"
+            src="https://res.cloudinary.com/djiqoe4bb/image/upload/v1776023220/BlackLogo_li2wwi.png"
             alt="Sony"
             style={{ height: '16px', width: 'auto', display: 'block', filter: 'brightness(0) invert(1)' }}
           />

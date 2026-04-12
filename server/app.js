@@ -5,9 +5,24 @@ const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 
+app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Date() }))
+
 // Middleware
 app.use(helmet());
-app.use(cors());
+app.use(cors({
+  origin: function(origin, callback) {
+    const allowed = [
+      'http://localhost:5173',
+      process.env.CLIENT_URL
+    ].filter(Boolean)
+    if (!origin || allowed.includes(origin)) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  },
+  credentials: true
+}))
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
@@ -48,11 +63,6 @@ app.patch('/api/admin/users/:id/toggle', verifyToken, adminOnly, async (req, res
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
-});
-
-// Health check
-app.get('/api/health', (req, res) => {
-  res.json({ success: true, message: 'Sony Marketplace API is running' });
 });
 
 // Error handler (must be last)
