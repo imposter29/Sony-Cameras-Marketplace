@@ -9,13 +9,24 @@ app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Dat
 
 // Middleware
 app.use(helmet());
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:5173",
+  "https://sony-cameras-marketplace.vercel.app"
+];
+
 app.use(cors({
   origin: function (origin, callback) {
-    console.log("Incoming origin:", origin);
-    callback(null, true);
+    if (!origin) return callback(null, true); // allow Postman / server calls
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
   },
   credentials: true
-}))
+}));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
