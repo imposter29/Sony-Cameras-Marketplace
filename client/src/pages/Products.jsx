@@ -1,19 +1,21 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import { useProducts, useCategories } from '../hooks/useProducts';
 import ProductCard from '../components/product/ProductCard';
 import SkeletonCard from '../components/ui/SkeletonCard';
 
 const Products = ({ initialCategory = '' }) => {
-  const [search, setSearch] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [searchParams] = useSearchParams();
+  const urlSearch = searchParams.get('search') || '';
+
+  const [search, setSearch] = useState(urlSearch);
+  const [debouncedSearch, setDebouncedSearch] = useState(urlSearch);
   const [selectedCategories, setSelectedCategories] = useState(initialCategory ? [initialCategory] : []);
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [appliedMin, setAppliedMin] = useState('');
   const [appliedMax, setAppliedMax] = useState('');
-  const [sensor, setSensor] = useState([]);
-  const [mount, setMount] = useState([]);
   const [rating, setRating] = useState('');
   const [sort, setSort] = useState('newest');
   const [page, setPage] = useState(1);
@@ -27,8 +29,6 @@ const Products = ({ initialCategory = '' }) => {
     category: selectedCategories.length ? selectedCategories.join(',') : undefined,
     minPrice: appliedMin || undefined,
     maxPrice: appliedMax || undefined,
-    sensor: sensor.length ? sensor.join(',') : undefined,
-    mount: mount.length ? mount.join(',') : undefined,
     rating: rating || undefined,
     sort, page, limit: 12,
   };
@@ -51,15 +51,11 @@ const Products = ({ initialCategory = '' }) => {
     const cat = categories.find((x) => x.slug === c);
     activeFilters.push({ label: cat?.name || c, type: 'category', value: c });
   });
-  sensor.forEach((s) => activeFilters.push({ label: s, type: 'sensor', value: s }));
-  mount.forEach((m) => activeFilters.push({ label: m, type: 'mount', value: m }));
   if (rating) activeFilters.push({ label: `${rating}★ & up`, type: 'rating', value: rating });
   if (appliedMin || appliedMax) activeFilters.push({ label: `₹${appliedMin || '0'} – ₹${appliedMax || '∞'}`, type: 'price', value: 'price' });
 
   const removeFilter = (f) => {
     if (f.type === 'category') setSelectedCategories((p) => p.filter((v) => v !== f.value));
-    if (f.type === 'sensor') setSensor((p) => p.filter((v) => v !== f.value));
-    if (f.type === 'mount') setMount((p) => p.filter((v) => v !== f.value));
     if (f.type === 'rating') setRating('');
     if (f.type === 'price') { setAppliedMin(''); setAppliedMax(''); setMinPrice(''); setMaxPrice(''); }
     resetPage();
@@ -69,7 +65,7 @@ const Products = ({ initialCategory = '' }) => {
     setSearch(''); setDebouncedSearch('');
     setSelectedCategories(initialCategory ? [initialCategory] : []);
     setMinPrice(''); setMaxPrice(''); setAppliedMin(''); setAppliedMax('');
-    setSensor([]); setMount([]); setRating(''); setSort('newest'); setPage(1);
+    setRating(''); setSort('newest'); setPage(1);
   };
 
   const lbl = { fontFamily: "'DM Sans', sans-serif", fontSize: '9px', color: '#7F7F7F', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px', display: 'block' };
@@ -119,38 +115,10 @@ const Products = ({ initialCategory = '' }) => {
             style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '9px', fontWeight: 600, textTransform: 'uppercase', backgroundColor: '#000000', color: '#FFFFFF', border: 'none', borderRadius: '0', padding: '6px 14px', cursor: 'pointer' }}>APPLY</button>
         </div>
 
-        {/* Sensor */}
-        <div style={{ marginBottom: '24px' }}>
-          <span style={lbl}>SENSOR</span>
-          {['Full-frame', 'APS-C', '1-inch'].map((s) => (
-            <label key={s} onClick={() => toggleArr(sensor, setSensor, s)} style={{
-              display: 'flex', alignItems: 'center', marginBottom: '6px', cursor: 'pointer',
-              fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: sensor.includes(s) ? '#000' : '#7F7F7F',
-            }}>
-              <span style={chk(sensor.includes(s))}>{sensor.includes(s) && <span style={{ color: '#FFF', fontSize: '9px' }}>✓</span>}</span>
-              {s}
-            </label>
-          ))}
-        </div>
-
-        {/* Mount */}
-        <div style={{ marginBottom: '24px' }}>
-          <span style={lbl}>MOUNT</span>
-          {['E-mount', 'A-mount'].map((m) => (
-            <label key={m} onClick={() => toggleArr(mount, setMount, m)} style={{
-              display: 'flex', alignItems: 'center', marginBottom: '6px', cursor: 'pointer',
-              fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: mount.includes(m) ? '#000' : '#7F7F7F',
-            }}>
-              <span style={chk(mount.includes(m))}>{mount.includes(m) && <span style={{ color: '#FFF', fontSize: '9px' }}>✓</span>}</span>
-              {m}
-            </label>
-          ))}
-        </div>
-
         {/* Rating */}
         <div style={{ marginBottom: '24px' }}>
           <span style={lbl}>RATING</span>
-          {[{ l: '★★★★★ only', v: '5' }, { l: '★★★★ and up', v: '4' }, { l: '★★★ and up', v: '3' }].map((r) => (
+          {[{ l: '5 stars only', v: '5' }, { l: '4 stars & up', v: '4' }, { l: '3 stars & up', v: '3' }].map((r) => (
             <label key={r.v} onClick={() => { setRating(rating === r.v ? '' : r.v); resetPage(); }} style={{
               display: 'flex', alignItems: 'center', marginBottom: '6px', cursor: 'pointer',
               fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: rating === r.v ? '#000' : '#7F7F7F',
@@ -176,9 +144,9 @@ const Products = ({ initialCategory = '' }) => {
           </div>
           <select value={sort} onChange={(e) => { setSort(e.target.value); resetPage(); }}
             style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', border: '0.5px solid #404040', borderRadius: '0', padding: '9px 12px', backgroundColor: '#FFFFFF', outline: 'none', cursor: 'pointer' }}>
+            <option value="newest">Newest first</option>
             <option value="price_asc">Price: low to high</option>
             <option value="price_desc">Price: high to low</option>
-            <option value="newest">Newest first</option>
             <option value="rating">Top rated</option>
           </select>
         </div>
@@ -201,7 +169,7 @@ const Products = ({ initialCategory = '' }) => {
         </p>
 
         {isLoading ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', backgroundColor: '#E5E5E5' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', backgroundColor: '#FFFFFF' }}>
             {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
           </div>
         ) : products.length === 0 ? (
@@ -213,7 +181,7 @@ const Products = ({ initialCategory = '' }) => {
             }}>CLEAR ALL FILTERS</button>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', backgroundColor: '#E5E5E5' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', backgroundColor: '#FFFFFF' }}>
             {products.map((p) => <ProductCard key={p._id} product={p} />)}
           </div>
         )}

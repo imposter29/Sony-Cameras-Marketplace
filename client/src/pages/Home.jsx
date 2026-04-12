@@ -1,42 +1,72 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import api from '../api/axios';
 import { formatPrice } from '../utils/formatPrice';
 
+/* ── Reusable hook: fires once when element enters viewport ── */
+const useInView = (threshold = 0.15) => {
+  const ref = useRef(null);
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setInView(true); observer.disconnect(); } },
+      { threshold }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [threshold]);
+
+  return [ref, inView];
+};
 
 const Home = () => {
   const navigate = useNavigate();
 
-  // Fetch featured products
   const {
     data: featuredData,
     isLoading: featuredLoading,
     isError: featuredError,
   } = useQuery({
     queryKey: ['featured'],
-    queryFn: () => api.get('/products/featured').then((r) => r.data.data),
+    queryFn: () => api.get('/products/featured').then((r) => r.data.products || r.data),
+  });
+
+  const [ref1, inView1] = useInView(0.1);
+  const [ref2, inView2] = useInView(0.2);
+  const [ref3, inView3] = useInView(0.2);
+  const [ref4, inView4] = useInView(0.2);
+
+  const imgAnim = (active) => ({
+    width: '100%', height: '100%', objectFit: 'cover', display: 'block',
+    transform: active ? 'scale(1)' : 'scale(1.08)',
+    transition: active ? 'transform 8s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none',
   });
 
   return (
     <div>
       {/* ===== SECTION 1 — Landscape Hero (IMAGE 1) ===== */}
-      <section style={{ width: '100%', height: '95vh', overflow: 'hidden', position: 'relative' }}>
+      <section ref={ref1} style={{ width: '100%', height: '95vh', overflow: 'hidden', position: 'relative' }}>
         <img
           src="/Image1.webp"
           alt="Sony Alpha landscape hero"
-          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          style={imgAnim(inView1)}
         />
         {/* Gradient overlay */}
         <div
           style={{
             position: 'absolute',
             inset: 0,
-            background: 'linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0.75) 100%)',
+            background: 'linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.15) 35%, rgba(0,0,0,0.6) 65%, rgba(0,0,0,0.92) 100%)',
           }}
         />
         {/* Text block */}
-        <div style={{ position: 'absolute', bottom: '52px', left: '52px', zIndex: 2, maxWidth: '580px' }}>
+        <div style={{ position: 'absolute', bottom: '52px', left: '52px', zIndex: 2, maxWidth: '700px' }}>
+          {/* Decorative line */}
+          <div style={{ width: 40, height: '0.5px', background: 'rgba(255,255,255,0.45)', marginBottom: 16 }} />
           {/* Eyebrow */}
           <p
             style={{
@@ -44,8 +74,8 @@ const Home = () => {
               fontSize: '10px',
               color: 'rgba(255,255,255,0.7)',
               textTransform: 'uppercase',
-              letterSpacing: '0.3em',
-              marginBottom: '12px',
+              letterSpacing: '0.4em',
+              marginBottom: '16px',
             }}
           >
             SONY ALPHA — 2024
@@ -54,7 +84,7 @@ const Home = () => {
           <span
             style={{
               fontFamily: "'Cormorant Garamond', serif",
-              fontSize: '76px',
+              fontSize: '108px',
               color: '#fff',
               fontWeight: 300,
               fontStyle: 'italic',
@@ -68,7 +98,7 @@ const Home = () => {
           <span
             style={{
               fontFamily: "'Cormorant Garamond', serif",
-              fontSize: '76px',
+              fontSize: '108px',
               color: '#fff',
               fontWeight: 300,
               fontStyle: 'italic',
@@ -83,16 +113,16 @@ const Home = () => {
           <p
             style={{
               fontFamily: "'DM Sans', sans-serif",
-              fontSize: '11px',
-              color: 'rgba(255,255,255,0.55)',
+              fontSize: '12px',
+              color: 'rgba(255,255,255,0.75)',
               fontStyle: 'italic',
               marginTop: '12px',
             }}
           >
-            Shot by the Sony Alpha A7 IV
+            —  Shot by the Sony Alpha A7 IV
           </p>
           {/* Buttons */}
-          <div style={{ display: 'flex', gap: '12px', marginTop: '28px' }}>
+          <div style={{ display: 'flex', gap: '12px', marginTop: '40px' }}>
             <button
               onClick={() => navigate('/products')}
               style={{
@@ -104,7 +134,7 @@ const Home = () => {
                 fontWeight: 600,
                 textTransform: 'uppercase',
                 letterSpacing: '0.12em',
-                padding: '13px 30px',
+                padding: '14px 36px',
                 cursor: 'pointer',
               }}
             >
@@ -115,7 +145,7 @@ const Home = () => {
               style={{
                 background: 'transparent',
                 color: '#fff',
-                border: '0.5px solid rgba(255,255,255,0.6)',
+                border: '1px solid rgba(255,255,255,0.45)',
                 fontFamily: "'DM Sans', sans-serif",
                 fontSize: '10px',
                 fontWeight: 600,
@@ -132,11 +162,11 @@ const Home = () => {
       </section>
 
       {/* ===== SECTION 2 — Portrait (IMAGE 2) ===== */}
-      <section style={{ width: '100%', height: '100vh', overflow: 'hidden', position: 'relative' }}>
+      <section ref={ref2} style={{ width: '100%', height: '100vh', overflow: 'hidden', position: 'relative' }}>
         <img
           src="/Image2.jpeg"
           alt="Sony Alpha portrait"
-          style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center', display: 'block' }}
+          style={{ ...imgAnim(inView2), objectPosition: 'top center' }}
         />
         {/* Overlay */}
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)' }} />
@@ -181,15 +211,13 @@ const Home = () => {
         >
           <span
             style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: '11px',
-              textTransform: 'uppercase',
-              letterSpacing: '0.2em',
+              fontFamily: "'Playfair Display', serif",
+              fontSize: '40px',
               color: '#000',
               fontWeight: 500,
             }}
           >
-            FEATURED CAMERAS
+            Featured Cameras
           </span>
           <span
             onClick={() => navigate('/products')}
@@ -209,7 +237,7 @@ const Home = () => {
         {/* Loading skeleton */}
         {featuredLoading && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', background: '#E5E5E5' }}>
-            {[0, 1, 2].map((i) => (
+            {[0, 1, 2, 3, 4, 5].map((i) => (
               <div key={i} className="animate-pulse" style={{ height: '380px', background: '#F5F5F5' }} />
             ))}
           </div>
@@ -223,8 +251,8 @@ const Home = () => {
         {/* Products grid */}
         {!featuredLoading && !featuredError && featuredData && (
           <>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', background: '#E5E5E5' }}>
-              {featuredData?.map((p) => (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', background: '#FFFFFF' }}>
+              {featuredData?.slice(0, 6).map((p) => (
                 <FeaturedCard key={p._id} product={p} navigate={navigate} />
               ))}
             </div>
@@ -253,11 +281,11 @@ const Home = () => {
       </section>
 
       {/* ===== SECTION 4 — Wildlife (IMAGE 3) ===== */}
-      <section style={{ width: '100%', height: '100vh', overflow: 'hidden', position: 'relative' }}>
+      <section ref={ref3} style={{ width: '100%', height: '100vh', overflow: 'hidden', position: 'relative' }}>
         <img
           src="/Image3.jpeg"
           alt="Wildlife photography"
-          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          style={imgAnim(inView3)}
         />
         {/* Overlay */}
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.38)' }} />
@@ -288,7 +316,7 @@ const Home = () => {
             Nature, untamed.
           </span>
           <button
-            onClick={() => navigate('/category/alpha-series')}
+            onClick={() => navigate('/category/interchangeable-lens-cameras')}
             style={{
               background: 'transparent',
               border: '0.5px solid rgba(255,255,255,0.6)',
@@ -303,17 +331,17 @@ const Home = () => {
               cursor: 'pointer',
             }}
           >
-            SHOP ALPHA SERIES →
+            SHOP INTERCHANGEABLE-LENS →
           </button>
         </div>
       </section>
 
       {/* ===== SECTION 5 — Action/Sports (IMAGE 4) ===== */}
-      <section style={{ width: '100%', height: '100vh', overflow: 'hidden', position: 'relative' }}>
+      <section ref={ref4} style={{ width: '100%', height: '100vh', overflow: 'hidden', position: 'relative' }}>
         <img
           src="/Image4.jpeg"
           alt="Action sports photography"
-          style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block' }}
+          style={{ ...imgAnim(inView4), objectPosition: 'center' }}
         />
         {/* Overlay */}
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)' }} />
@@ -344,7 +372,7 @@ const Home = () => {
             Speed. Precision.
           </span>
           <button
-            onClick={() => navigate('/category/cinema-line')}
+            onClick={() => navigate('/category/cinema-line-cameras')}
             style={{
               background: 'transparent',
               border: '0.5px solid rgba(255,255,255,0.6)',
