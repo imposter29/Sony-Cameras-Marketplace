@@ -10,16 +10,9 @@ app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Dat
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin: function(origin, callback) {
-    const allowed = [
-      'http://localhost:5173',
-      process.env.CLIENT_URL
-    ].filter(Boolean)
-    if (!origin || allowed.includes(origin)) {
-      callback(null, true)
-    } else {
-      callback(new Error('Not allowed by CORS'))
-    }
+  origin: function (origin, callback) {
+    console.log("Incoming origin:", origin);
+    callback(null, true);
   },
   credentials: true
 }))
