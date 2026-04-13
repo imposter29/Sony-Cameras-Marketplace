@@ -215,7 +215,8 @@ const ProductDetail = () => {
             fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: 600, textTransform: 'uppercase',
             letterSpacing: '0.12em', padding: '14px', border: 'none', borderRadius: '0',
             cursor: inStock ? 'pointer' : 'not-allowed', marginBottom: '8px',
-          }}>{inStock ? (cartMsg ? '✓ ADDED' : 'ADD TO CART') : 'OUT OF STOCK'}</button>
+          }}>{inStock ? 'ADD TO CART' : 'OUT OF STOCK'}</button>
+          {cartMsg && <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#404040', textAlign: 'center', marginBottom: '8px' }}>{cartMsg}</p>}
 
           <button onClick={handleWishlist} style={{
             width: '100%', backgroundColor: '#FFF', color: '#000',

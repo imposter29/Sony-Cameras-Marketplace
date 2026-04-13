@@ -82,7 +82,7 @@ const ProductCard = ({ product }) => {
       onMouseLeave={(e) => { e.currentTarget.style.borderBottomColor = '#E5E5E5'; e.currentTarget.style.borderRightColor = '#E5E5E5'; }}
     >
       {/* Image area */}
-      <div style={{ height: '240px', backgroundColor: '#FFFFFF', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ height: '240px', backgroundColor: '#F5F5F5', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         {product.images && product.images.length > 0 ? (
           <img src={product.images[0]} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         ) : (
@@ -160,6 +160,9 @@ const ProductCard = ({ product }) => {
             {compareMsg || (inCompare ? '✓' : '+')}
           </button>
         </div>
+        {cartAdded && (
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '10px', color: '#404040', textAlign: 'center', marginTop: '4px' }}>✓ Added</p>
+        )}
       </div>
     </div>
   );
