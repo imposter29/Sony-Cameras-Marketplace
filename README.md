@@ -26,7 +26,7 @@ A full-stack e-commerce marketplace for Sony cameras. Built as a portfolio proje
 ## Running locally
 ```bash
 # Clone the repo
-git clone [repo-url]
+git clone https://github.com/imposter29/Sony-Cameras-Marketplace.git
 
 # Install server dependencies
 cd server && npm install
