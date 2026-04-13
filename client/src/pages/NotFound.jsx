@@ -1,17 +1,33 @@
-import { Link } from 'react-router-dom';
-import Button from '../components/ui/Button';
+import { useNavigate } from 'react-router-dom';
 
 const NotFound = () => {
+  const navigate = useNavigate();
+
   return (
-    <div className="sony-container py-20 text-center min-h-[60vh] flex flex-col items-center justify-center">
-      <h1 className="text-8xl font-display font-bold text-sony-light mb-4">404</h1>
-      <h2 className="text-2xl font-semibold mb-2">Page Not Found</h2>
-      <p className="text-sony-mid mb-8 max-w-md">
+    <div style={{
+      backgroundColor: '#FFFFFF', minHeight: 'calc(100vh - 56px)',
+      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+      padding: '40px',
+    }}>
+      <span style={{
+        fontFamily: "'Cormorant Garamond', serif", fontSize: '120px', fontWeight: 300, color: '#E5E5E5',
+        lineHeight: 1, letterSpacing: '-0.04em',
+      }}>404</span>
+      <h1 style={{
+        fontFamily: "'Playfair Display', serif", fontSize: '24px', fontWeight: 500, color: '#000',
+        marginBottom: '8px', marginTop: '-8px',
+      }}>Page Not Found</h1>
+      <p style={{
+        fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#7F7F7F',
+        marginBottom: '32px', maxWidth: '360px', textAlign: 'center',
+      }}>
         The page you're looking for doesn't exist or has been moved.
       </p>
-      <Link to="/">
-        <Button size="lg">Back to Home</Button>
-      </Link>
+      <button onClick={() => navigate('/')} style={{
+        fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: 600, textTransform: 'uppercase',
+        letterSpacing: '0.12em', backgroundColor: '#000', color: '#fff', border: 'none', borderRadius: '0',
+        padding: '13px 28px', cursor: 'pointer',
+      }}>BACK TO HOME</button>
     </div>
   );
 };

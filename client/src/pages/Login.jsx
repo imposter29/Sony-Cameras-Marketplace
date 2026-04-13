@@ -1,218 +1,77 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { Eye, EyeOff } from 'lucide-react';
-import { loginUser } from '../api/auth';
+import { Link, useNavigate } from 'react-router-dom';
 import useAuthStore from '../store/authStore';
+import { loginUser } from '../api/auth';
+import { useToast } from '../components/ui/Toast';
 
 const Login = () => {
   const navigate = useNavigate();
-  const login = useAuthStore((state) => state.login);
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
+  const { addToast } = useToast();
+  const setAuth = useAuthStore((s) => s.login);
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
-
-  const onSubmit = async (formData) => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!email || !password) { setError('Please fill in all fields'); return; }
     try {
       setLoading(true);
       setError('');
-      const { data } = await loginUser(formData);
-      login(data.user, data.token);
-      localStorage.setItem('token', data.token);
-      navigate('/');
+      const { data } = await loginUser({ email, password });
+      setAuth(data.user, data.token);
+      addToast('✓ Welcome back');
+      navigate(data.user.role === 'admin' ? '/admin' : '/');
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Please try again.');
+      setError(err.response?.data?.message || 'Login failed');
     } finally {
       setLoading(false);
     }
   };
 
+  const inputStyle = {
+    width: '100%', fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#000',
+    border: '1px solid #000', borderRadius: '0', padding: '12px 16px', outline: 'none', backgroundColor: '#fff',
+  };
+  const labelStyle = {
+    fontFamily: "'DM Sans', sans-serif", fontSize: '10px', fontWeight: 600,
+    textTransform: 'uppercase', letterSpacing: '0.12em', color: '#000',
+    display: 'block', marginBottom: '8px',
+  };
+
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center py-12">
-      <div className="w-full max-w-md mx-4">
-        {/* SONY heading */}
-        <div className="text-center mb-2">
-          <img src="/BlackLogo.png" alt="Sony" style={{ height: '40px', width: 'auto', margin: '0 auto' }} />
-        </div>
+    <div style={{ backgroundColor: '#FFFFFF', minHeight: 'calc(100vh - 56px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px' }}>
+      <div style={{ width: '100%', maxWidth: '400px' }}>
+        <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '32px', fontWeight: 500, color: '#000', marginBottom: '8px', textAlign: 'center' }}>Login</h1>
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#7F7F7F', textAlign: 'center', marginBottom: '32px' }}>Enter your credentials to continue</p>
 
-        {/* Subheading */}
-        <p
-          className="text-center mb-10"
-          style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '15px',
-            color: '#7F7F7F',
-          }}
-        >
-          Welcome back
-        </p>
-
-        {/* Error message */}
-        {error && (
-          <p
-            className="text-center mb-6"
-            style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: '13px',
-              color: '#7F7F7F',
-            }}
-          >
-            {error}
-          </p>
-        )}
-
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          {/* Email */}
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <div>
-            <label
-              className="block mb-1.5"
-              style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: '12px',
-                fontWeight: 500,
-                color: '#000000',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-              }}
-            >
-              Email
-            </label>
-            <input
-              type="email"
-              {...register('email', {
-                required: 'Email is required',
-                pattern: {
-                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: 'Please enter a valid email address',
-                },
-              })}
-              className="w-full px-4 py-3 outline-none"
-              style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: '14px',
-                color: '#000000',
-                border: '1px solid #000000',
-                borderRadius: '0',
-                backgroundColor: '#FFFFFF',
-              }}
-              placeholder="you@example.com"
-            />
-            {errors.email && (
-              <p
-                className="mt-1"
-                style={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: '12px',
-                  color: '#7F7F7F',
-                }}
-              >
-                {errors.email.message}
-              </p>
-            )}
+            <label style={labelStyle}>EMAIL</label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={inputStyle} placeholder="you@example.com" required />
+          </div>
+          <div>
+            <label style={labelStyle}>PASSWORD</label>
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} style={inputStyle} placeholder="••••••••" required />
           </div>
 
-          {/* Password */}
-          <div>
-            <label
-              className="block mb-1.5"
-              style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: '12px',
-                fontWeight: 500,
-                color: '#000000',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-              }}
-            >
-              Password
-            </label>
-            <div className="relative">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                {...register('password', { required: 'Password is required' })}
-                className="w-full px-4 py-3 pr-10 outline-none"
-                style={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: '14px',
-                  color: '#000000',
-                  border: '1px solid #000000',
-                  borderRadius: '0',
-                  backgroundColor: '#FFFFFF',
-                }}
-                placeholder="••••••••"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2"
-                style={{ color: '#7F7F7F' }}
-              >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
-            {errors.password && (
-              <p
-                className="mt-1"
-                style={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: '12px',
-                  color: '#7F7F7F',
-                }}
-              >
-                {errors.password.message}
-              </p>
-            )}
-          </div>
+          {error && (
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#000', borderLeft: '2px solid #000', paddingLeft: '12px' }}>{error}</p>
+          )}
 
-          {/* Login button */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3.5 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: '13px',
-              fontWeight: 700,
-              color: '#FFFFFF',
-              backgroundColor: '#000000',
-              border: 'none',
-              borderRadius: '0',
-              textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              cursor: loading ? 'not-allowed' : 'pointer',
-            }}
-          >
-            {loading ? 'Logging in...' : 'LOGIN'}
-          </button>
+          <button type="submit" disabled={loading} style={{
+            width: '100%', fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: 600,
+            textTransform: 'uppercase', letterSpacing: '0.12em', backgroundColor: '#000', color: '#fff',
+            border: 'none', borderRadius: '0', padding: '14px', cursor: loading ? 'not-allowed' : 'pointer',
+            opacity: loading ? 0.5 : 1,
+          }}>{loading ? 'LOGGING IN...' : 'LOGIN'}</button>
         </form>
 
-        {/* Sign up link */}
-        <p
-          className="text-center mt-8"
-          style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '13px',
-            color: '#7F7F7F',
-          }}
-        >
-          Don&apos;t have an account?{' '}
-          <Link
-            to="/signup"
-            style={{
-              color: '#000000',
-              fontWeight: 500,
-              textDecoration: 'underline',
-              textUnderlineOffset: '3px',
-            }}
-          >
-            Sign up
-          </Link>
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#7F7F7F', textAlign: 'center', marginTop: '24px' }}>
+          Don't have an account?{' '}
+          <Link to="/signup" style={{ color: '#000', textDecoration: 'underline', textUnderlineOffset: '3px' }}>Sign up</Link>
         </p>
       </div>
     </div>
