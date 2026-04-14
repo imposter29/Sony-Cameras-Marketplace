@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const session = require('express-session');
+const passport = require('./config/passport');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -9,6 +11,17 @@ app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Dat
 
 // Middleware
 app.use(helmet());
+
+// Session (required for Passport even though we use JWT)
+app.use(session({
+  secret: process.env.JWT_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: process.env.NODE_ENV === 'production' }
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
 const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:5173",

@@ -15,7 +15,9 @@ const UserSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
     email: { type: String, required: true, unique: true, lowercase: true },
-    password: { type: String, required: true, select: false },
+    password: { type: String, required: function() { return this.authProvider === 'local'; }, select: false },
+    googleId: { type: String, default: null },
+    authProvider: { type: String, enum: ['local', 'google'], default: 'local' },
     avatar: { type: String, default: null },
     role: { type: String, enum: ['user', 'admin'], default: 'user' },
     isActive: { type: Boolean, default: true },
@@ -25,9 +27,9 @@ const UserSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Hash password before saving
+// Hash password before saving (skip for Google OAuth users)
 UserSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
+  if (!this.isModified('password') || !this.password) return next();
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
   next();
