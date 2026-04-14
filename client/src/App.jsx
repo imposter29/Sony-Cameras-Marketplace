@@ -34,6 +34,7 @@ import About from './pages/About';
 import ContactUs from './pages/ContactUs';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
+import AuthCallback from './pages/AuthCallback';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -90,6 +91,7 @@ function App() {
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
 
           {/* Protected Routes — requires authentication */}
           <Route element={<ProtectedRoute />}>
