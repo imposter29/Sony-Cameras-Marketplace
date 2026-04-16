@@ -43,16 +43,19 @@ const ProductCard = ({ product }) => {
 
   const handleAddToCart = async (e) => {
     e.stopPropagation();
-    if (!isAuthenticated) return navigate('/login');
     if (outOfStock) return;
-    try {
-      await addToCart(product._id, 1);
-      addItem(product, 1);
-      setCartAdded(true);
-      addToast('✓ Added to cart');
-      setTimeout(() => setCartAdded(false), 2000);
-    } catch (err) {
-      addToast('✗ Failed to add to cart');
+    // Always add to local cart store first (works for guests too)
+    addItem(product, 1);
+    setCartAdded(true);
+    addToast('✓ Added to cart');
+    setTimeout(() => setCartAdded(false), 2000);
+    // Sync with server only when authenticated
+    if (isAuthenticated) {
+      try {
+        await addToCart(product._id, 1);
+      } catch (err) {
+        // Silent — local cart still updated
+      }
     }
   };
 

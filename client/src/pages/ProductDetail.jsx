@@ -67,16 +67,19 @@ const ProductDetail = () => {
   const stars = Array.from({ length: 5 }, (_, i) => (i < Math.round(product.avgRating || 0) ? '★' : '☆')).join('');
 
   const handleAddToCart = async () => {
-    if (!isAuthenticated) return navigate('/login');
     if (!inStock) return;
-    try {
-      await addToCart(product._id, qty);
-      cartAddItem(product, qty);
-      setCartMsg('✓ Added to cart');
-      addToast('✓ Added to cart');
-      setTimeout(() => setCartMsg(''), 2000);
-    } catch (err) {
-      addToast('✗ Failed to add to cart');
+    // Add to local cart store regardless of auth state
+    cartAddItem(product, qty);
+    setCartMsg('✓ Added to cart');
+    addToast('✓ Added to cart');
+    setTimeout(() => setCartMsg(''), 2000);
+    // Sync with server only when authenticated
+    if (isAuthenticated) {
+      try {
+        await addToCart(product._id, qty);
+      } catch (err) {
+        // Silent — local cart still updated
+      }
     }
   };
 

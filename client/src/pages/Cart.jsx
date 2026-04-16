@@ -1,11 +1,21 @@
 import { useNavigate } from 'react-router-dom';
 import useCartStore from '../store/cartStore';
+import useAuthStore from '../store/authStore';
 import { formatPrice } from '../utils/formatPrice';
 
 const Cart = () => {
   const navigate = useNavigate();
   const { items, clearCart, updateQuantity, removeItem } = useCartStore();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  const handleCheckout = () => {
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: '/checkout' } });
+    } else {
+      navigate('/checkout');
+    }
+  };
 
   return (
     <div style={{ backgroundColor: '#FFFFFF', minHeight: 'calc(100vh - 56px)' }}>
@@ -80,7 +90,7 @@ const Cart = () => {
                 <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: 600, color: '#000' }}>Total</span>
                 <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', fontWeight: 600, color: '#000' }}>{formatPrice(total)}</span>
               </div>
-              <button onClick={() => navigate('/checkout')} style={{
+              <button onClick={handleCheckout} style={{
                 width: '100%', fontFamily: "'DM Sans', sans-serif", fontSize: '11px', fontWeight: 600, textTransform: 'uppercase',
                 letterSpacing: '0.12em', backgroundColor: '#000', color: '#fff', border: 'none', borderRadius: '0',
                 padding: '14px', cursor: 'pointer',

@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import useAuthStore from '../store/authStore';
 import { loginUser } from '../api/auth';
 import { useToast } from '../components/ui/Toast';
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { addToast } = useToast();
   const setAuth = useAuthStore((s) => s.login);
 
@@ -23,7 +24,8 @@ const Login = () => {
       const { data } = await loginUser({ email, password });
       setAuth(data.user, data.token);
       addToast('✓ Welcome back');
-      navigate(data.user.role === 'admin' ? '/admin' : '/');
+      const redirectTo = location.state?.from || (data.user.role === 'admin' ? '/admin' : '/');
+      navigate(redirectTo);
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed');
     } finally {
