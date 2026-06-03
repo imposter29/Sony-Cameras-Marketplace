@@ -4,7 +4,6 @@
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-Frontend-brightgreen?style=for-the-badge&logo=vercel)](https://sony-cameras-marketplace.vercel.app/)
 [![API](https://img.shields.io/badge/API-Backend-blue?style=for-the-badge&logo=render)](https://sony-cameras-marketplace-api.onrender.com)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 
 ---
 
