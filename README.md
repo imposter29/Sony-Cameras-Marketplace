@@ -1,4 +1,4 @@
-# 🎥 Sony Cameras Marketplace
+# <img src="https://api.iconify.design/lucide/camera.svg?color=%233b82f6" width="32" height="32" align="center" /> Sony Cameras Marketplace
 
 > A full-stack e-commerce platform for Sony cameras — built as a portfolio project showcasing modern web development practices.
 
@@ -7,18 +7,18 @@
 
 ---
 
-## 🌐 Live Links
+## <img src="https://api.iconify.design/lucide/globe.svg?color=%233b82f6" width="24" height="24" align="center" /> Live Links
 
 | Service    | URL                                                                   |
 |------------|-----------------------------------------------------------------------|
 | Frontend   | https://sony-cameras-marketplace.vercel.app/                          |
 | Backend API | https://sony-cameras-marketplace-api.onrender.com                    |
 
-> **⚠️ Note:** The backend is hosted on Render's free tier. The first request after a period of inactivity may take **30–60 seconds** to cold-start.
+> **<img src="https://api.iconify.design/lucide/info.svg?color=%23f59e0b" width="18" height="18" align="center" /> Note:** The backend is hosted on Render's free tier. The first request after a period of inactivity may take **30–60 seconds** to cold-start.
 
 ---
 
-## 🔑 Demo Admin Credentials
+## <img src="https://api.iconify.design/lucide/key.svg?color=%2310b981" width="24" height="24" align="center" /> Demo Admin Credentials
 
 Use these credentials to log in to the admin panel on the live site or locally after seeding:
 
@@ -31,20 +31,20 @@ Use these credentials to log in to the admin panel on the live site or locally a
 
 ---
 
-## ✨ Features
+## <img src="https://api.iconify.design/lucide/sparkles.svg?color=%238b5cf6" width="24" height="24" align="center" /> Features
 
-- 📸 **Browse 21 Sony cameras** with filters, search, and sort
-- 🔐 **Full auth system** — Register, Login, JWT sessions, Google OAuth 2.0
-- 🛒 **Cart, Wishlist & Compare** — Compare up to 3 cameras side-by-side
-- 💳 **Checkout flow** — Mock payment via Card / UPI / Cash on Delivery
-- 📦 **Order tracking** — 5-step live status timeline
-- ⭐ **Product reviews & ratings**
-- 🛡️ **Super Admin panel** — Manage products, orders, and users
-- 📱 **Fully responsive** design
+- <img src="https://api.iconify.design/lucide/camera.svg?color=%230ea5e9" width="18" height="18" align="center" /> **Browse 21 Sony cameras** with filters, search, and sort
+- <img src="https://api.iconify.design/lucide/shield-check.svg?color=%2310b981" width="18" height="18" align="center" /> **Full auth system** — Register, Login, JWT sessions, Google OAuth 2.0
+- <img src="https://api.iconify.design/lucide/shopping-cart.svg?color=%233b82f6" width="18" height="18" align="center" /> **Cart, Wishlist & Compare** — Compare up to 3 cameras side-by-side
+- <img src="https://api.iconify.design/lucide/credit-card.svg?color=%23f59e0b" width="18" height="18" align="center" /> **Checkout flow** — Mock payment via Card / UPI / Cash on Delivery
+- <img src="https://api.iconify.design/lucide/package.svg?color=%238b5cf6" width="18" height="18" align="center" /> **Order tracking** — 5-step live status timeline
+- <img src="https://api.iconify.design/lucide/star.svg?color=%23eab308" width="18" height="18" align="center" /> **Product reviews & ratings**
+- <img src="https://api.iconify.design/lucide/shield.svg?color=%23f43f5e" width="18" height="18" align="center" /> **Super Admin panel** — Manage products, orders, and users
+- <img src="https://api.iconify.design/lucide/smartphone.svg?color=%230ea5e9" width="18" height="18" align="center" /> **Fully responsive** design
 
 ---
 
-## 🛠️ Tech Stack
+## <img src="https://api.iconify.design/lucide/layers.svg?color=%233b82f6" width="24" height="24" align="center" /> Tech Stack
 
 ### Frontend
 | Technology | Purpose |
@@ -74,7 +74,7 @@ Use these credentials to log in to the admin panel on the live site or locally a
 
 ---
 
-## 🚀 Running Locally
+## <img src="https://api.iconify.design/lucide/terminal.svg?color=%2310b981" width="24" height="24" align="center" /> Running Locally
 
 ### Prerequisites
 - Node.js v18+
@@ -159,7 +159,7 @@ This concurrently starts:
 
 ---
 
-## 🔧 Google OAuth Setup
+## <img src="https://api.iconify.design/lucide/settings.svg?color=%23f43f5e" width="24" height="24" align="center" /> Google OAuth Setup
 
 1. Go to the [Google Cloud Console](https://console.cloud.google.com)
 2. Create a new project (or select an existing one)
@@ -175,7 +175,7 @@ This concurrently starts:
 
 ---
 
-## 📁 Project Structure
+## <img src="https://api.iconify.design/lucide/folder-tree.svg?color=%23eab308" width="24" height="24" align="center" /> Project Structure
 
 ```
 Sony-Cameras-Marketplace/
@@ -201,7 +201,7 @@ Sony-Cameras-Marketplace/
 
 ---
 
-## 📜 Available Scripts
+## <img src="https://api.iconify.design/lucide/scroll.svg?color=%238b5cf6" width="24" height="24" align="center" /> Available Scripts
 
 | Command | Description |
 |---|---|
