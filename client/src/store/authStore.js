@@ -1,4 +1,7 @@
 import { create } from 'zustand';
+import useCartStore from './cartStore';
+import useWishlistStore from './wishlistStore';
+import useCompareStore from './compareStore';
 
 const useAuthStore = create((set) => ({
   user: JSON.parse(localStorage.getItem('user')) || null,
@@ -15,6 +18,10 @@ const useAuthStore = create((set) => ({
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     set({ user: null, token: null, isAuthenticated: false });
+    // Clear all per-user client state so it never leaks into the next account.
+    useCartStore.getState().resetCart();
+    useWishlistStore.getState().resetWishlist();
+    useCompareStore.getState().clearCompare();
   },
 
   setUser: (user) => {

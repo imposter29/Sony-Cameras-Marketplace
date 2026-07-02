@@ -7,7 +7,6 @@ import useAuthStore from '../store/authStore';
 import useCartStore from '../store/cartStore';
 import useWishlistStore from '../store/wishlistStore';
 import useCompareStore from '../store/compareStore';
-import { addToCart } from '../api/cart';
 import { toggleWishlist } from '../api/users';
 import { addReview } from '../api/reviews';
 import { formatPrice } from '../utils/formatPrice';
@@ -66,21 +65,13 @@ const ProductDetail = () => {
   const inStock = product.stock > 0;
   const stars = Array.from({ length: 5 }, (_, i) => (i < Math.round(product.avgRating || 0) ? '★' : '☆')).join('');
 
-  const handleAddToCart = async () => {
+  const handleAddToCart = () => {
     if (!inStock) return;
-    // Add to local cart store regardless of auth state
+    // Store handles optimistic local add + server sync (for authed users).
     cartAddItem(product, qty);
     setCartMsg('✓ Added to cart');
     addToast('✓ Added to cart');
     setTimeout(() => setCartMsg(''), 2000);
-    // Sync with server only when authenticated
-    if (isAuthenticated) {
-      try {
-        await addToCart(product._id, qty);
-      } catch (err) {
-        // Silent — local cart still updated
-      }
-    }
   };
 
   const handleWishlist = () => {

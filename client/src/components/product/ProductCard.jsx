@@ -5,7 +5,6 @@ import useAuthStore from '../../store/authStore';
 import useCartStore from '../../store/cartStore';
 import useWishlistStore from '../../store/wishlistStore';
 import useCompareStore from '../../store/compareStore';
-import { addToCart } from '../../api/cart';
 import { toggleWishlist } from '../../api/users';
 import { formatPrice } from '../../utils/formatPrice';
 import { useToast } from '../ui/Toast';
@@ -41,22 +40,14 @@ const ProductCard = ({ product }) => {
     addToast(wishlisted ? '✓ Removed from wishlist' : '✓ Saved to wishlist');
   };
 
-  const handleAddToCart = async (e) => {
+  const handleAddToCart = (e) => {
     e.stopPropagation();
     if (outOfStock) return;
-    // Always add to local cart store first (works for guests too)
+    // Store handles optimistic local add + server sync (for authed users).
     addItem(product, 1);
     setCartAdded(true);
     addToast('✓ Added to cart');
     setTimeout(() => setCartAdded(false), 2000);
-    // Sync with server only when authenticated
-    if (isAuthenticated) {
-      try {
-        await addToCart(product._id, 1);
-      } catch (err) {
-        // Silent — local cart still updated
-      }
-    }
   };
 
   const handleCompare = (e) => {

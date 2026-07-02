@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import useAuthStore from '../store/authStore';
+import { syncAfterLogin } from '../utils/syncAfterLogin';
 import api from '../api/axios';
 
 export default function AuthCallback() {
@@ -28,9 +29,12 @@ export default function AuthCallback() {
     api.get('/auth/me', {
       headers: { Authorization: `Bearer ${token}` },
     })
-      .then((res) => {
+      .then(async (res) => {
         const user = res.data.user || res.data.data || res.data;
         login(user, token);
+        // Merge the guest cart (which survived the full-page Google redirect via
+        // localStorage persist) into the server cart, then hydrate wishlist.
+        await syncAfterLogin();
         navigate('/');
       })
       .catch(() => {

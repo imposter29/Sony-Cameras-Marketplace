@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useAuthStore from '../store/authStore';
 import { registerUser } from '../api/auth';
+import { syncAfterLogin } from '../utils/syncAfterLogin';
 import { useToast } from '../components/ui/Toast';
 
 const Signup = () => {
@@ -26,6 +27,7 @@ const Signup = () => {
       setError('');
       const { data } = await registerUser({ name, email, password });
       setAuth(data.user, data.token);
+      await syncAfterLogin();
       addToast('✓ Account created');
       navigate('/');
     } catch (err) {

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import useAuthStore from '../store/authStore';
 import { loginUser } from '../api/auth';
+import { syncAfterLogin } from '../utils/syncAfterLogin';
 import { useToast } from '../components/ui/Toast';
 
 const Login = () => {
@@ -23,6 +24,7 @@ const Login = () => {
       setError('');
       const { data } = await loginUser({ email, password });
       setAuth(data.user, data.token);
+      await syncAfterLogin();
       addToast('✓ Welcome back');
       const redirectTo = location.state?.from || (data.user.role === 'admin' ? '/admin' : '/');
       navigate(redirectTo);
