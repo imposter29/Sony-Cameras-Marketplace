@@ -1,5 +1,11 @@
+const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User.model');
+const { sendMail } = require('../utils/mailer');
+
+// Hash a raw reset token before storing/looking it up (never store raw tokens).
+const hashToken = (raw) =>
+  crypto.createHash('sha256').update(raw).digest('hex');
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -125,6 +131,99 @@ exports.getMe = async (req, res) => {
       success: true,
       user,
     });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Request a password reset link
+// @route   POST /api/auth/forgot-password
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+
+    // Always respond success to avoid leaking which emails are registered.
+    if (!user || user.authProvider === 'google') {
+      return res.json({
+        success: true,
+        message: 'If an account exists, a reset link has been sent.',
+      });
+    }
+
+    const rawToken = crypto.randomBytes(32).toString('hex');
+    user.resetPasswordToken = hashToken(rawToken);
+    user.resetPasswordExpire = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+    await user.save();
+
+    const clientURL = (process.env.CLIENT_URL || 'http://localhost:5173').replace(/\/$/, '');
+    const resetLink = `${clientURL}/reset-password?token=${rawToken}`;
+
+    await sendMail({
+      to: user.email,
+      subject: 'Reset your password',
+      text: `Reset your password using this link (valid for 1 hour): ${resetLink}`,
+      html: `<p>Reset your password using the link below (valid for 1 hour):</p><p><a href="${resetLink}">${resetLink}</a></p>`,
+    });
+
+    res.json({
+      success: true,
+      message: 'If an account exists, a reset link has been sent.',
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Reset password using a token
+// @route   POST /api/auth/reset-password
+exports.resetPassword = async (req, res) => {
+  try {
+    const { token, password } = req.body;
+
+    const user = await User.findOne({
+      resetPasswordToken: hashToken(token),
+      resetPasswordExpire: { $gt: new Date() },
+    }).select('+password');
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired reset token',
+      });
+    }
+
+    user.password = password; // hashed by pre-save hook
+    user.authProvider = 'local';
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+    await user.save();
+
+    res.json({ success: true, message: 'Password has been reset. You can now log in.' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Set/enable a password for the current (e.g. Google) user so they can
+//          also log in with email/password
+// @route   POST /api/auth/set-password
+exports.setPassword = async (req, res) => {
+  try {
+    const { password } = req.body;
+
+    const user = await User.findById(req.user._id).select('+password');
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    user.password = password; // hashed by pre-save hook
+    // Allow email/password login going forward; googleId is retained so Google
+    // sign-in still resolves this same account first.
+    user.authProvider = 'local';
+    await user.save();
+
+    res.json({ success: true, message: 'Password set. You can now log in with email and password.' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

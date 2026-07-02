@@ -1,6 +1,7 @@
 const Order = require('../models/Order.model');
 const Cart = require('../models/Cart.model');
 const Product = require('../models/Product.model');
+const { sendMail } = require('../utils/mailer');
 
 // Allowed order status transitions. Any transition not listed here is rejected.
 const STATUS_TRANSITIONS = {
@@ -115,6 +116,13 @@ exports.placeOrder = async (req, res) => {
 
     // Clear cart
     await Cart.findOneAndUpdate({ user: req.user._id }, { items: [] });
+
+    // Order confirmation email (non-blocking; logs in dev when SMTP is unset).
+    sendMail({
+      to: req.user.email,
+      subject: `Order confirmed — ₹${total}`,
+      text: `Thank you for your order! We received your order of ${orderItems.length} item(s) totalling ₹${total}. Order ID: ${order._id}.`,
+    }).catch(() => {});
 
     res.status(201).json({ success: true, order });
   } catch (error) {
@@ -259,6 +267,16 @@ exports.updateStatus = async (req, res) => {
     // Guard against restoring twice for an already-cancelled order.
     if (status === 'cancelled' && !wasCancelled) {
       await restoreStock(order);
+    }
+
+    // Status-update email (non-blocking). populate user email if needed.
+    const populated = await order.populate('user', 'email');
+    if (populated.user?.email) {
+      sendMail({
+        to: populated.user.email,
+        subject: `Order ${order._id} — status: ${status}`,
+        text: `Your order status has been updated to "${status}".`,
+      }).catch(() => {});
     }
 
     res.json({ success: true, order });
