@@ -37,6 +37,13 @@ exports.register = async (req, res) => {
       },
     });
   } catch (error) {
+    // Concurrent requests can slip past the pre-check and hit the unique index.
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: 'User with this email already exists',
+      });
+    }
     res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -66,6 +73,16 @@ exports.login = async (req, res) => {
       return res.status(401).json({
         success: false,
         message: 'Account has been deactivated',
+      });
+    }
+
+    // Google-only accounts have no password — comparePassword would throw a 500.
+    // Return a clear, actionable 400 instead.
+    if (!user.password || user.authProvider === 'google') {
+      return res.status(400).json({
+        success: false,
+        message:
+          'This account uses Google sign-in. Please continue with Google.',
       });
     }
 
