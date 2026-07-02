@@ -2,7 +2,11 @@ const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const User = require('../models/User.model');
 
-passport.use(
+// Only register the Google strategy when credentials are configured. Passport's
+// GoogleStrategy throws at construction if clientID is missing, which would
+// crash the server (and the test suite) whenever Google OAuth env is unset.
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+  passport.use(
   new GoogleStrategy(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
@@ -50,17 +54,12 @@ passport.use(
       }
     }
   )
-);
+  );
+} else {
+  console.warn('[passport] Google OAuth disabled — GOOGLE_CLIENT_ID/SECRET not set.');
+}
 
-passport.serializeUser((user, done) => done(null, user.id));
-
-passport.deserializeUser(async (id, done) => {
-  try {
-    const user = await User.findById(id);
-    done(null, user);
-  } catch (err) {
-    done(err, null);
-  }
-});
+// No serializeUser/deserializeUser: OAuth runs with { session: false } and we
+// issue a JWT in the callback, so Passport never persists a session.
 
 module.exports = passport;

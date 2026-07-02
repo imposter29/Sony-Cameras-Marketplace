@@ -11,21 +11,48 @@ exports.getProfile = async (req, res) => {
   }
 };
 
-// @desc    Update user profile (name + avatar)
+// @desc    Update user profile (name, avatar, and optional password change)
 // @route   PUT /api/users/profile
 exports.updateProfile = async (req, res) => {
   try {
-    const { name, avatar } = req.body;
-    const updateData = {};
-    if (name) updateData.name = name;
-    if (avatar !== undefined) updateData.avatar = avatar;
+    const { name, avatar, currentPassword, newPassword } = req.body;
 
-    const user = await User.findByIdAndUpdate(req.user._id, updateData, {
-      new: true,
-      runValidators: true,
-    });
+    const user = await User.findById(req.user._id).select('+password');
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
 
-    res.json({ success: true, user });
+    if (name) user.name = name;
+    if (avatar !== undefined) user.avatar = avatar;
+
+    // Optional password change / set. Previously this was silently ignored.
+    if (newPassword) {
+      if (newPassword.length < 6) {
+        return res.status(400).json({
+          success: false,
+          message: 'New password must be at least 6 characters',
+        });
+      }
+      // If the account already has a password, require the correct current one.
+      if (user.password) {
+        const ok = currentPassword && (await user.comparePassword(currentPassword));
+        if (!ok) {
+          return res.status(400).json({
+            success: false,
+            message: 'Current password is incorrect',
+          });
+        }
+      }
+      user.password = newPassword; // hashed by pre-save hook
+      user.authProvider = 'local'; // enable email/password login going forward
+    }
+
+    await user.save();
+
+    const safeUser = user.toObject();
+    delete safeUser.password;
+
+    res.json({ success: true, user: safeUser });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

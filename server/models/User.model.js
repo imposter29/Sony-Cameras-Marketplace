@@ -21,6 +21,13 @@ const UserSchema = new mongoose.Schema(
     avatar: { type: String, default: null },
     role: { type: String, enum: ['user', 'admin'], default: 'user' },
     isActive: { type: Boolean, default: true },
+    // Email verification (optional, gated by EMAIL_VERIFICATION env).
+    isVerified: { type: Boolean, default: false },
+    verifyToken: { type: String, select: false },
+    verifyTokenExpire: { type: Date, select: false },
+    // Password reset (token stored hashed).
+    resetPasswordToken: { type: String, select: false },
+    resetPasswordExpire: { type: Date, select: false },
     addresses: [AddressSchema],
     wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
   },

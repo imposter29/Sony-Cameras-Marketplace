@@ -59,6 +59,9 @@ const Login = () => {
           <div>
             <label style={labelStyle}>PASSWORD</label>
             <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} style={inputStyle} placeholder="••••••••" required />
+            <div style={{ textAlign: 'right', marginTop: '8px' }}>
+              <Link to="/forgot-password" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#7F7F7F', textDecoration: 'underline', textUnderlineOffset: '2px' }}>Forgot password?</Link>
+            </div>
           </div>
 
           {error && (

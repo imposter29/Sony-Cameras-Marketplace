@@ -22,6 +22,10 @@ const Profile = () => {
     setName(user?.name || '');
   }, [user]);
 
+  // Google users have no password yet — offer "Set Password" (no current password
+  // required) so they can also sign in with email/password afterwards.
+  const isGoogleOnly = user?.authProvider === 'google';
+
   const initials = user?.name
     ? user.name.charAt(0).toUpperCase()
     : '?';
@@ -55,8 +59,11 @@ const Profile = () => {
     try {
       setPwSaving(true);
       setPwMessage('');
-      await updateProfile({ currentPassword, newPassword });
-      setPwMessage('Password updated successfully');
+      // Google-only accounts set a first password (no current password needed).
+      const payload = isGoogleOnly ? { newPassword } : { currentPassword, newPassword };
+      const { data } = await updateProfile(payload);
+      if (data.user) setUser(data.user);
+      setPwMessage(isGoogleOnly ? 'Password set successfully' : 'Password updated successfully');
       setCurrentPassword('');
       setNewPassword('');
       setConfirmNewPassword('');
@@ -224,22 +231,29 @@ const Profile = () => {
                 color: '#000000',
               }}
             >
-              Change Password
+              {isGoogleOnly ? 'Set Password' : 'Change Password'}
             </h3>
+            {isGoogleOnly && (
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#7F7F7F', marginBottom: '16px' }}>
+                Your account uses Google sign-in. Set a password to also log in with your email.
+              </p>
+            )}
             <form onSubmit={handleChangePassword} className="space-y-4">
-              <div>
-                <label className="block mb-1.5" style={labelStyle}>
-                  Current Password
-                </label>
-                <input
-                  type="password"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="w-full px-4 py-3 outline-none"
-                  style={inputStyle}
-                  required
-                />
-              </div>
+              {!isGoogleOnly && (
+                <div>
+                  <label className="block mb-1.5" style={labelStyle}>
+                    Current Password
+                  </label>
+                  <input
+                    type="password"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    className="w-full px-4 py-3 outline-none"
+                    style={inputStyle}
+                    required
+                  />
+                </div>
+              )}
               <div>
                 <label className="block mb-1.5" style={labelStyle}>
                   New Password
@@ -283,7 +297,7 @@ const Profile = () => {
                 className="px-8 py-3 transition-opacity disabled:opacity-50"
                 style={buttonStyle}
               >
-                {pwSaving ? 'Updating...' : 'UPDATE PASSWORD'}
+                {pwSaving ? 'Saving...' : isGoogleOnly ? 'SET PASSWORD' : 'UPDATE PASSWORD'}
               </button>
             </form>
           </div>

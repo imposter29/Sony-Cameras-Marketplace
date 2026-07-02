@@ -27,6 +27,7 @@ const Checkout = () => {
   const [newAddr, setNewAddr] = useState({ label: 'Home', line1: '', city: '', state: '', pincode: '', phone: '' });
   const [addrSaving, setAddrSaving] = useState(false);
   const [indiaStates, setIndiaStates] = useState([]);
+  const [statesFailed, setStatesFailed] = useState(false);
   const [pincodeError, setPincodeError] = useState(false);
   const [processingPayment, setProcessingPayment] = useState(false);
   const [cardNum, setCardNum] = useState('');
@@ -88,9 +89,17 @@ const Checkout = () => {
     })
       .then((res) => res.json())
       .then((data) => {
-        if (!data.error) setIndiaStates(data.data.states);
+        if (!data.error && data.data?.states?.length) {
+          setIndiaStates(data.data.states);
+        } else {
+          setStatesFailed(true);
+        }
       })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        console.error(err);
+        // Lookup failed — fall back to manual state entry so checkout is never stuck.
+        setStatesFailed(true);
+      });
   }, []);
 
   const validatePincode = async (pincode) => {
@@ -107,7 +116,9 @@ const Checkout = () => {
         }
       } catch (err) {
         console.error(err);
-        setPincodeError(true);
+        // Lookup service unavailable — don't block; let the user fill city/state manually.
+        setPincodeError(false);
+        setStatesFailed(true);
       }
     } else {
       setPincodeError(false);
@@ -270,12 +281,16 @@ const Checkout = () => {
                   <input type="tel" placeholder="Phone" value={newAddr.phone} onChange={(e) => setNewAddr({ ...newAddr, phone: e.target.value.replace(/\D/g, '') })} style={inputStyle} />
                   <input placeholder="Address Line 1 *" required value={newAddr.line1} onChange={(e) => setNewAddr({ ...newAddr, line1: e.target.value })} style={{ ...inputStyle, gridColumn: '1 / -1' }} />
                   <input placeholder="City *" required value={newAddr.city} onChange={(e) => setNewAddr({ ...newAddr, city: e.target.value })} style={inputStyle} />
-                  <select required value={newAddr.state} onChange={(e) => setNewAddr({ ...newAddr, state: e.target.value })} style={inputStyle}>
-                    <option value="" disabled>Select State *</option>
-                    {indiaStates.map((s) => (
-                      <option key={s.state_code} value={s.name}>{s.name}</option>
-                    ))}
-                  </select>
+                  {statesFailed ? (
+                    <input placeholder="State *" required value={newAddr.state} onChange={(e) => setNewAddr({ ...newAddr, state: e.target.value })} style={inputStyle} />
+                  ) : (
+                    <select required value={newAddr.state} onChange={(e) => setNewAddr({ ...newAddr, state: e.target.value })} style={inputStyle}>
+                      <option value="" disabled>Select State *</option>
+                      {indiaStates.map((s) => (
+                        <option key={s.state_code} value={s.name}>{s.name}</option>
+                      ))}
+                    </select>
+                  )}
                   <div>
                     <input type="text" maxLength={6} placeholder="Pincode *" required value={newAddr.pincode} onChange={(e) => {
                       const val = e.target.value.replace(/\D/g, '');

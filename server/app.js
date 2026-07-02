@@ -1,9 +1,13 @@
+// Auto-forward rejected promises from async route handlers to errorHandler.
+require('express-async-errors');
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const session = require('express-session');
+const morgan = require('morgan');
+const mongoSanitize = require('express-mongo-sanitize');
 const passport = require('./config/passport');
 const errorHandler = require('./middleware/errorHandler');
+const { globalLimiter } = require('./middleware/rateLimiters');
 
 const app = express();
 
@@ -12,15 +16,14 @@ app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Dat
 // Middleware
 app.use(helmet());
 
-// Session (required for Passport even though we use JWT)
-app.use(session({
-  secret: process.env.JWT_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  cookie: { secure: process.env.NODE_ENV === 'production' }
-}));
+// Request logging (concise in production, verbose in dev; quiet under test).
+if (process.env.NODE_ENV !== 'test') {
+  app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
+}
+
+// Passport is used statelessly (JWT, session: false) — no express-session,
+// serializeUser/deserializeUser, or passport.session() required.
 app.use(passport.initialize());
-app.use(passport.session());
 
 const allowedOrigins = [
   "http://localhost:3000",
@@ -42,6 +45,13 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// Strip any keys containing `$` or `.` from req.body/query/params so operator
+// objects can't be injected into Mongo queries (e.g. { email: { $ne: null } }).
+app.use(mongoSanitize());
+
+// Global rate limiting across the API.
+app.use('/api', globalLimiter);
 
 // Routes
 app.use('/api/auth', require('./routes/auth.routes'));
