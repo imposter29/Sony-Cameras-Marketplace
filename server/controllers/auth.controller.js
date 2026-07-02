@@ -29,6 +29,12 @@ exports.register = async (req, res) => {
 
     const user = await User.create({ name, email, password });
 
+    // TODO (P3 — email verification, scaffolded): when EMAIL_VERIFICATION is
+    // enabled, generate a verifyToken, email a verification link via the mailer,
+    // and gate protected actions on `user.isVerified`. Left optional/off by
+    // default so signup continues to log users in immediately.
+    // if (process.env.EMAIL_VERIFICATION === 'true') { ...send verify email... }
+
     const token = generateToken(user._id);
 
     res.status(201).json({
