@@ -130,10 +130,21 @@ CLIENT_URL=http://localhost:5173
 ADMIN_EMAIL=admin@sony.com
 ADMIN_PASSWORD=Admin@1234
 
-# Google OAuth (optional — see setup below)
+# Google OAuth (optional — sign-in is disabled if unset; see setup below)
 GOOGLE_CLIENT_ID=<your_google_client_id>
 GOOGLE_CLIENT_SECRET=<your_google_client_secret>
 GOOGLE_CALLBACK_URL=http://localhost:3000/api/auth/google/callback
+
+# Email / SMTP (optional) — password-reset & order emails are logged to the
+# server console in dev when unset. Set all three to enable real delivery.
+SMTP_HOST=
+SMTP_PORT=587
+SMTP_USER=
+SMTP_PASS=
+MAIL_FROM=
+
+# Feature flags
+# EMAIL_VERIFICATION=false   # (scaffolded) require email verification on signup
 ```
 
 ### 4. Seed the database
@@ -209,4 +220,5 @@ Sony-Cameras-Marketplace/
 | `npm run server` | Start server only |
 | `npm run client` | Start client only |
 | `npm run seed` | Seed the database with products and admin user |
+| `cd server && npm test` | Run the backend test suite (Jest + Supertest, in-memory MongoDB) |
 
