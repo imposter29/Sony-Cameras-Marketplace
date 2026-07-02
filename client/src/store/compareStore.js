@@ -17,9 +17,10 @@ const useCompareStore = create((set, get) => ({
     }));
   },
 
-  get canAdd() {
-    return get().items.length < 3;
-  },
+  // Reactive helper: consumers derive "can add" from the subscribed `items`
+  // slice (e.g. `items.length < 3`). A plain getter here would not trigger
+  // re-renders, so it has been removed.
+  canAdd: () => get().items.length < 3,
 
   clearCompare: () => set({ items: [] }),
 }));

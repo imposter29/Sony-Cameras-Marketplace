@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import useAuthStore from './store/authStore';
+import useCartStore from './store/cartStore';
+import useWishlistStore from './store/wishlistStore';
 import { getMe } from './api/auth';
 
 // Layout
@@ -63,6 +65,9 @@ function App() {
       try {
         const { data } = await getMe();
         setUser(data.user);
+        // Server cart/wishlist are the source of truth for authed users.
+        useCartStore.getState().hydrateFromServer();
+        useWishlistStore.getState().hydrateFromServer();
       } catch {
         logout();
       }

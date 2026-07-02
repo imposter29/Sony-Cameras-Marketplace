@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { getWishlist } from '../api/users';
 
 const useWishlistStore = create((set, get) => ({
   items: [],
@@ -18,6 +19,20 @@ const useWishlistStore = create((set, get) => ({
   isWishlisted: (productId) => {
     return get().items.some((item) => item._id === productId);
   },
+
+  // Load the authenticated user's wishlist from the server.
+  hydrateFromServer: async () => {
+    if (!localStorage.getItem('token')) return;
+    try {
+      const { data } = await getWishlist();
+      set({ items: data.wishlist || [] });
+    } catch {
+      // Keep local state on failure.
+    }
+  },
+
+  // Clear on logout so one account's wishlist never leaks into another.
+  resetWishlist: () => set({ items: [] }),
 }));
 
 export default useWishlistStore;
