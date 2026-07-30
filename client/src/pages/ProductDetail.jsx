@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Camera, Truck, Shield, Store, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useLenis } from 'lenis/react';
 import { useProductBySlug, useProducts, useProductReviews } from '../hooks/useProducts';
 import useAuthStore from '../store/authStore';
 import useCartStore from '../store/cartStore';
@@ -18,7 +19,14 @@ const ProductDetail = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { addToast } = useToast();
+  const lenis = useLenis();
   const reviewsRef = useRef(null);
+
+  const scrollToReviews = () => {
+    if (!reviewsRef.current) return;
+    if (lenis) lenis.scrollTo(reviewsRef.current, { offset: -56 });
+    else reviewsRef.current.scrollIntoView({ behavior: 'smooth' });
+  };
   const { data, isLoading } = useProductBySlug(slug);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const cartAddItem = useCartStore((s) => s.addItem);
@@ -154,7 +162,7 @@ const ProductDetail = () => {
         </div>
 
         {/* RIGHT — Buy Panel 40% */}
-        <div style={{ flex: '0 0 40%', borderLeft: '0.5px solid #E5E5E5', padding: '28px', position: 'sticky', top: '56px', height: 'fit-content', maxHeight: 'calc(100vh - 56px)', overflowY: 'auto' }}>
+        <div data-lenis-prevent style={{ flex: '0 0 40%', borderLeft: '0.5px solid #E5E5E5', padding: '28px', position: 'sticky', top: '56px', height: 'fit-content', maxHeight: 'calc(100vh - 56px)', overflowY: 'auto' }}>
           {/* Breadcrumb */}
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '10px', color: '#7F7F7F', marginBottom: '14px' }}>
             <Link to="/" style={{ color: '#7F7F7F', textDecoration: 'none' }}>Home</Link>
@@ -171,7 +179,7 @@ const ProductDetail = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '16px', fontFamily: "'DM Sans', sans-serif", fontSize: '11px' }}>
             <span style={{ color: '#404040', letterSpacing: '1px' }}>{stars}</span>
             <span style={{ color: '#000', fontWeight: 500 }}>{(product.avgRating || 0).toFixed(1)}</span>
-            <span style={{ color: '#7F7F7F', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => reviewsRef.current?.scrollIntoView({ behavior: 'smooth' })}>
+            <span style={{ color: '#7F7F7F', cursor: 'pointer', textDecoration: 'underline' }} onClick={scrollToReviews}>
               ({product.reviewCount || 0} reviews)
             </span>
           </div>

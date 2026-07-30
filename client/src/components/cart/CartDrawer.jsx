@@ -1,11 +1,14 @@
 import { useNavigate } from 'react-router-dom';
 import useCartStore from '../../store/cartStore';
+import useScrollLock from '../../hooks/useScrollLock';
 import { formatPrice } from '../../utils/formatPrice';
 
 const CartDrawer = () => {
   const navigate = useNavigate();
   const { items, isOpen, toggleDrawer, updateQuantity, removeItem } = useCartStore();
   const cartTotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  useScrollLock(isOpen);
 
   if (!isOpen) return null;
 
@@ -28,7 +31,7 @@ const CartDrawer = () => {
         </div>
 
         {/* Items */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '16px 24px' }}>
+        <div data-lenis-prevent style={{ flex: 1, overflowY: 'auto', padding: '16px 24px' }}>
           {items.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '60px 0' }}>
               <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#E5E5E5" strokeWidth="1" style={{ margin: '0 auto 12px', display: 'block' }}>
