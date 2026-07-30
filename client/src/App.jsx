@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
+import { useLenis } from 'lenis/react';
 import useAuthStore from './store/authStore';
 import useCartStore from './store/cartStore';
 import useWishlistStore from './store/wishlistStore';
@@ -51,7 +52,16 @@ import ManageMessages from './pages/admin/ManageMessages';
 // Scroll to top on every route change
 const ScrollToTop = () => {
   const { pathname } = useLocation();
-  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  const lenis = useLenis();
+
+  useEffect(() => {
+    if (lenis) {
+      lenis.scrollTo(0, { immediate: true, force: true });
+    } else {
+      window.scrollTo(0, 0);
+    }
+  }, [pathname, lenis]);
+
   return null;
 };
 

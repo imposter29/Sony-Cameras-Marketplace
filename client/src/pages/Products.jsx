@@ -78,7 +78,7 @@ const Products = ({ initialCategory = '' }) => {
   return (
     <div style={{ display: 'flex', backgroundColor: '#FFFFFF', minHeight: 'calc(100vh - 56px)' }}>
       {/* FILTER SIDEBAR */}
-      <aside style={{
+      <aside data-lenis-prevent style={{
         width: '220px', minWidth: '220px', backgroundColor: '#FFFFFF',
         borderRight: '0.5px solid #E5E5E5', padding: '24px 20px',
         position: 'sticky', top: '56px', height: 'calc(100vh - 56px)', overflowY: 'auto',
